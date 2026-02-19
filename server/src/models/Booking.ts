@@ -211,7 +211,8 @@ const BookingSchema: Schema = new Schema(
         enum: ['pending', 'held', 'released', 'refunded'],
         default: 'pending'
       },
-      stripePaymentIntentId: String,
+      razorpayOrderId: String,
+      razorpayPaymentId: String,
       paidAt: Date,
       refundedAt: Date,
       refundAmount: Number
