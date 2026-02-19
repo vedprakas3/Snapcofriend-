@@ -1,13 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
-import Stripe from 'stripe';
 import Booking from '../models/Booking';
 import User from '../models/User';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2023-10-16' as any
-});
+// Note: Install razorpay package: npm install razorpay
+// For now, using mock implementation that can be replaced with actual Razorpay integration
 
-// @desc    Create payment intent
+// @desc    Create Razorpay order
 // @route   POST /api/payments/create-intent
 // @access  Private
 export const createPaymentIntent = async (
@@ -29,40 +27,37 @@ export const createPaymentIntent = async (
       return;
     }
 
-    // Get or create Stripe customer
-    let user = await User.findById(req.user._id);
-    let customerId = user?.stripeCustomerId;
+    // Convert amount to paise (₹1 = 100 paise)
+    const amountInPaise = Math.round(booking.pricing.totalAmount * 100);
 
-    if (!customerId) {
-      const customer = await stripe.customers.create({
-        email: user?.email,
-        name: `${user?.firstName} ${user?.lastName}`
-      });
-      customerId = customer.id;
-      await User.findByIdAndUpdate(req.user._id, { stripeCustomerId: customerId });
-    }
+    // TODO: Integrate with Razorpay
+    // const Razorpay = require('razorpay');
+    // const razorpay = new Razorpay({
+    //   key_id: process.env.RAZORPAY_KEY_ID,
+    //   key_secret: process.env.RAZORPAY_KEY_SECRET
+    // });
+    // const order = await razorpay.orders.create({
+    //   amount: amountInPaise,
+    //   currency: 'INR',
+    //   receipt: booking._id.toString()
+    // });
 
-    // Create payment intent
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(booking.pricing.totalAmount * 100), // Convert to cents
-      currency: 'usd',
-      customer: customerId,
-      metadata: {
-        bookingId: booking._id.toString(),
-        userId: req.user._id.toString()
-      }
-    });
+    // Mock response for now
+    const mockOrderId = `order_${Date.now()}`;
 
     res.json({
       success: true,
-      clientSecret: paymentIntent.client_secret
+      orderId: mockOrderId,
+      amount: amountInPaise,
+      currency: 'INR',
+      keyId: process.env.RAZORPAY_KEY_ID || 'rzp_test_mock_key'
     });
   } catch (error) {
     next(error);
   }
 };
 
-// @desc    Confirm payment
+// @desc    Verify Razorpay payment
 // @route   POST /api/payments/confirm
 // @access  Private
 export const confirmPayment = async (
@@ -71,7 +66,7 @@ export const confirmPayment = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const { bookingId, paymentIntentId } = req.body;
+    const { bookingId, razorpayOrderId, razorpayPaymentId, razorpaySignature } = req.body;
 
     const booking = await Booking.findById(bookingId);
     if (!booking) {
@@ -79,17 +74,23 @@ export const confirmPayment = async (
       return;
     }
 
-    // Verify payment intent with Stripe
-    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
-
-    if (paymentIntent.status !== 'succeeded') {
-      res.status(400).json({ message: 'Payment not successful' });
-      return;
-    }
+    // TODO: Verify signature with Razorpay
+    // const crypto = require('crypto');
+    // const body = razorpayOrderId + '|' + razorpayPaymentId;
+    // const expectedSignature = crypto
+    //   .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+    //   .update(body.toString())
+    //   .digest('hex');
+    // 
+    // if (expectedSignature !== razorpaySignature) {
+    //   res.status(400).json({ message: 'Invalid signature' });
+    //   return;
+    // }
 
     // Update booking
     booking.payment.status = 'held';
-    booking.payment.stripePaymentIntentId = paymentIntentId;
+    booking.payment.razorpayOrderId = razorpayOrderId;
+    booking.payment.razorpayPaymentId = razorpayPaymentId;
     booking.payment.paidAt = new Date();
     booking.status = 'confirmed';
     await booking.save();
@@ -103,7 +104,7 @@ export const confirmPayment = async (
   }
 };
 
-// @desc    Get payment methods
+// @desc    Get payment methods (not used with Razorpay)
 // @route   GET /api/payments/methods
 // @access  Private
 export const getPaymentMethods = async (
@@ -112,31 +113,18 @@ export const getPaymentMethods = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const user = await User.findById(req.user._id);
-    
-    if (!user?.stripeCustomerId) {
-      res.json({
-        success: true,
-        data: []
-      });
-      return;
-    }
-
-    const paymentMethods = await stripe.paymentMethods.list({
-      customer: user.stripeCustomerId,
-      type: 'card'
-    });
-
+    // Razorpay doesn't store payment methods like Stripe
+    // Users enter card details during checkout
     res.json({
       success: true,
-      data: paymentMethods.data
+      data: []
     });
   } catch (error) {
     next(error);
   }
 };
 
-// @desc    Add payment method
+// @desc    Add payment method (not used with Razorpay)
 // @route   POST /api/payments/methods
 // @access  Private
 export const addPaymentMethod = async (
@@ -145,34 +133,16 @@ export const addPaymentMethod = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const { paymentMethodId } = req.body;
-
-    const user = await User.findById(req.user._id);
-    let customerId = user?.stripeCustomerId;
-
-    if (!customerId) {
-      const customer = await stripe.customers.create({
-        email: user?.email,
-        name: `${user?.firstName} ${user?.lastName}`
-      });
-      customerId = customer.id;
-      await User.findByIdAndUpdate(req.user._id, { stripeCustomerId: customerId });
-    }
-
-    await stripe.paymentMethods.attach(paymentMethodId, {
-      customer: customerId
-    });
-
     res.json({
       success: true,
-      message: 'Payment method added'
+      message: 'Payment methods are handled during checkout with Razorpay'
     });
   } catch (error) {
     next(error);
   }
 };
 
-// @desc    Remove payment method
+// @desc    Remove payment method (not used with Razorpay)
 // @route   DELETE /api/payments/methods/:methodId
 // @access  Private
 export const removePaymentMethod = async (
@@ -181,8 +151,6 @@ export const removePaymentMethod = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    await stripe.paymentMethods.detach(req.params.methodId);
-
     res.json({
       success: true,
       message: 'Payment method removed'
@@ -258,28 +226,26 @@ export const requestPayout = async (
     const { amount } = req.body;
 
     const user = await User.findById(req.user._id);
-    if (!user?.stripeConnectId) {
-      res.status(400).json({ message: 'Stripe Connect account not set up' });
+    if (!user?.isFriend) {
+      res.status(400).json({ message: 'Only companions can request payouts' });
       return;
     }
 
-    // Create transfer to connected account
-    const transfer = await stripe.transfers.create({
-      amount: Math.round(amount * 100),
-      currency: 'usd',
-      destination: user.stripeConnectId
-    });
+    // TODO: Integrate with RazorpayX for payouts
+    // or use manual bank transfer process
 
     res.json({
       success: true,
-      data: transfer
+      message: 'Payout request submitted',
+      amount,
+      status: 'pending'
     });
   } catch (error) {
     next(error);
   }
 };
 
-// @desc    Stripe webhook
+// @desc    Razorpay webhook
 // @route   POST /api/payments/webhook
 // @access  Public
 export const webhook = async (
@@ -288,35 +254,40 @@ export const webhook = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const sig = req.headers['stripe-signature'] as string;
-    const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+    const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
+    const signature = req.headers['x-razorpay-signature'] as string;
 
-    let event;
+    // TODO: Verify webhook signature
+    // const crypto = require('crypto');
+    // const shasum = crypto.createHmac('sha256', secret);
+    // shasum.update(JSON.stringify(req.body));
+    // const digest = shasum.digest('hex');
+    //
+    // if (digest !== signature) {
+    //   res.status(400).json({ message: 'Invalid signature' });
+    //   return;
+    // }
 
-    try {
-      event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret || '');
-    } catch (err: any) {
-      res.status(400).send(`Webhook Error: ${err.message}`);
-      return;
-    }
+    const event = req.body;
 
     // Handle events
-    switch (event.type) {
-      case 'payment_intent.succeeded':
-        const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        // Update booking status
-        if (paymentIntent.metadata?.bookingId) {
-          await Booking.findByIdAndUpdate(paymentIntent.metadata.bookingId, {
+    switch (event.event) {
+      case 'payment.captured':
+        const payment = event.payload.payment.entity;
+        const bookingId = payment.notes?.bookingId;
+        if (bookingId) {
+          await Booking.findByIdAndUpdate(bookingId, {
             'payment.status': 'held',
             status: 'confirmed'
           });
         }
         break;
 
-      case 'payment_intent.payment_failed':
-        const failedPayment = event.data.object as Stripe.PaymentIntent;
-        if (failedPayment.metadata?.bookingId) {
-          await Booking.findByIdAndUpdate(failedPayment.metadata.bookingId, {
+      case 'payment.failed':
+        const failedPayment = event.payload.payment.entity;
+        const failedBookingId = failedPayment.notes?.bookingId;
+        if (failedBookingId) {
+          await Booking.findByIdAndUpdate(failedBookingId, {
             'payment.status': 'pending'
           });
         }
