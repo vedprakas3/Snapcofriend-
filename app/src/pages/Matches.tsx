@@ -133,11 +133,11 @@ const Matches: React.FC = () => {
                                   </div>
                                   <div className="text-right">
                                     <p className="font-bold text-lg">
-                                      ${match.recommendedPackage.hourlyRate}/hr
+                                      ₹{match.recommendedPackage.hourlyRate}/hr
                                     </p>
                                     {match.estimatedTotal && (
                                       <p className="text-sm text-muted-foreground">
-                                        ~${match.estimatedTotal} total
+                                        ~₹{match.estimatedTotal} total
                                       </p>
                                     )}
                                   </div>
