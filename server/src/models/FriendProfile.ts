@@ -41,7 +41,7 @@ export interface IFriendProfile extends Document {
     state?: string;
     country?: string;
   };
-  serviceRadius: number; // in miles
+  serviceRadius: number; // in kilometers
   presencePackages: IPresencePackage[];
   availability: IAvailability[];
   isAvailableNow: boolean;
@@ -79,8 +79,8 @@ const PresencePackageSchema: Schema = new Schema({
   hourlyRate: {
     type: Number,
     required: true,
-    min: 20,
-    max: 200
+    min: 500,
+    max: 5000
   },
   minHours: { type: Number, default: 1 },
   maxHours: { type: Number, default: 8 },
