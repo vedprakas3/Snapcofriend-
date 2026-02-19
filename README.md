@@ -18,12 +18,12 @@
 - ✅ Safety Code System
 - ✅ Automatic Check-ins every 30 minutes
 - ✅ One-tap SOS alerts
-- ✅ $5M Insurance Coverage
+- ✅ ₹5 Crore Insurance Coverage
 - ✅ 24/7 Safety Team
 
 ### For Companions (Friends)
 - Create a professional profile with presence packages
-- Set your own hourly rates ($20-$200/hr)
+- Set your own hourly rates (₹500-₹5000/hr)
 - Manage availability calendar
 - Track earnings and stats
 - Build reputation through reviews
@@ -46,7 +46,7 @@
 - Socket.io (Real-time communication)
 - JWT Authentication
 - bcrypt (Password hashing)
-- Stripe (Payments)
+- Razorpay (Payments - India)
 - Helmet (Security)
 
 ## 🚀 Getting Started
@@ -54,7 +54,7 @@
 ### Prerequisites
 - Node.js 18+ 
 - MongoDB (local or Atlas)
-- Stripe account (for payments)
+- Razorpay account (for payments in India)
 
 ### Installation
 
