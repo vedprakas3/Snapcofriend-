@@ -237,17 +237,17 @@ const BookingPage: React.FC = () => {
               <CardContent className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">
-                    ${booking.pricing.hourlyRate} x {booking.pricing.totalHours} hrs
+                    ₹{booking.pricing.hourlyRate} x {booking.pricing.totalHours} hrs
                   </span>
-                  <span>${booking.pricing.subtotal.toFixed(2)}</span>
+                  <span>₹{booking.pricing.subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Platform Fee</span>
-                  <span>${booking.pricing.platformFee.toFixed(2)}</span>
+                  <span>₹{booking.pricing.platformFee.toFixed(2)}</span>
                 </div>
                 <div className="border-t pt-3 flex justify-between font-bold text-lg">
                   <span>Total</span>
-                  <span>${booking.pricing.totalAmount.toFixed(2)}</span>
+                  <span>₹{booking.pricing.totalAmount.toFixed(2)}</span>
                 </div>
 
                 {booking.payment.status === 'pending' && booking.status === 'pending' && (
