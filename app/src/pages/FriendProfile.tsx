@@ -201,7 +201,7 @@ const FriendProfilePage: React.FC = () => {
                             <p className="text-sm text-muted-foreground">{pkg.description}</p>
                           </div>
                           <div className="text-right">
-                            <div className="text-2xl font-bold">${pkg.hourlyRate}/hr</div>
+                            <div className="text-2xl font-bold">₹{pkg.hourlyRate}/hr</div>
                           </div>
                         </div>
                         
