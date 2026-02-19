@@ -147,7 +147,7 @@ const Bookings: React.FC = () => {
                               </div>
                               <div className="flex items-center gap-4">
                                 <div className="text-right">
-                                  <p className="font-bold">${booking.pricing.totalAmount.toFixed(2)}</p>
+                                  <p className="font-bold">₹{booking.pricing.totalAmount.toFixed(2)}</p>
                                   <p className="text-sm text-muted-foreground capitalize">
                                     {booking.payment.status}
                                   </p>
