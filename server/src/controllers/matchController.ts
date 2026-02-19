@@ -193,8 +193,8 @@ export const findMatches = async (
 
     if (budget) {
       query['presencePackages.hourlyRate'] = {
-        $gte: budget.min || 20,
-        $lte: budget.max || 200
+        $gte: budget.min || 500,
+        $lte: budget.max || 5000
       };
     }
 
