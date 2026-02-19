@@ -1,0 +1,22 @@
+{
+  "name": "snapcofriend",
+  "version": "1.0.0",
+  "description": "SnapCofriend - Contextual Companionship Marketplace",
+  "private": true,
+  "scripts": {
+    "install:all": "npm install && cd app && npm install && cd ../server && npm install",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:client": "cd app && npm run dev",
+    "dev:server": "cd server && npm run dev",
+    "build": "cd app && npm run build",
+    "build:server": "cd server && npm run build",
+    "start": "cd server && npm start",
+    "lint": "cd app && npm run lint && cd ../server && npm run lint"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
