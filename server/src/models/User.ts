@@ -34,8 +34,9 @@ export interface IUser extends Document {
   };
   languages: string[];
   bio?: string;
-  stripeCustomerId?: string;
-  stripeConnectId?: string;
+  razorpayCustomerId?: string;
+  bankAccountNumber?: string;
+  bankIFSC?: string;
   isActive: boolean;
   lastLogin?: Date;
   createdAt: Date;
@@ -146,11 +147,15 @@ const UserSchema: Schema = new Schema(
       type: String,
       maxlength: [500, 'Bio cannot be more than 500 characters']
     },
-    stripeCustomerId: {
+    razorpayCustomerId: {
       type: String,
       select: false
     },
-    stripeConnectId: {
+    bankAccountNumber: {
+      type: String,
+      select: false
+    },
+    bankIFSC: {
       type: String,
       select: false
     },
