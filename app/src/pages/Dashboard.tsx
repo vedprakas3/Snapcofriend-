@@ -172,7 +172,7 @@ const Dashboard: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Total Spent</p>
-                  <p className="text-2xl font-bold">${stats.totalSpent.toFixed(0)}</p>
+                  <p className="text-2xl font-bold">₹{stats.totalSpent.toFixed(0)}</p>
                 </div>
                 <TrendingUp className="h-8 w-8 text-muted-foreground" />
               </div>
