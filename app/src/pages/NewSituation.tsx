@@ -35,7 +35,7 @@ const NewSituation: React.FC = () => {
     duration: 2,
     address: '',
     urgency: 'flexible' as 'flexible' | 'soon' | 'urgent',
-    budget: [50],
+    budget: [1500],
     genderPreference: 'any' as 'any' | 'male' | 'female',
     verifiedOnly: true
   });
@@ -152,7 +152,7 @@ const NewSituation: React.FC = () => {
                 <div className="relative">
                   <Textarea
                     id="situation"
-                    placeholder="I have a wedding next Saturday and my ex will be there with their new partner. I need someone confident who can handle awkward conversations and make me look good..."
+                    placeholder="Meri cousin ki shaadi hai next Saturday aur mera ex wahan apni nayi girlfriend ke saath aa raha hai. Mujhe koi confident companion chahiye jo awkward situations handle kar sake..."
                     value={formData.situation}
                     onChange={(e) => handleChange('situation', e.target.value)}
                     className="min-h-[150px] resize-none"
@@ -249,7 +249,7 @@ const NewSituation: React.FC = () => {
                     <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="address"
-                      placeholder="123 Main St, New York, NY"
+                      placeholder="e.g., Bandra West, Mumbai"
                       value={formData.address}
                       onChange={(e) => handleChange('address', e.target.value)}
                       className="pl-10"
@@ -284,17 +284,17 @@ const NewSituation: React.FC = () => {
             {step === 4 && (
               <div className="space-y-6">
                 <div className="space-y-2">
-                  <Label>Budget: Up to ${formData.budget[0]}/hr</Label>
+                  <Label>Budget: Up to ₹{formData.budget[0]}/hr</Label>
                   <Slider
                     value={formData.budget}
                     onValueChange={(value) => handleChange('budget', value)}
-                    min={20}
-                    max={200}
-                    step={5}
+                    min={500}
+                    max={5000}
+                    step={100}
                   />
                   <div className="flex justify-between text-sm text-muted-foreground">
-                    <span>$20/hr</span>
-                    <span>$200/hr</span>
+                    <span>₹500/hr</span>
+                    <span>₹5000/hr</span>
                   </div>
                 </div>
 
